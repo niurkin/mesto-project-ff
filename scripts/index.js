@@ -14,11 +14,11 @@ function addCard(source, removal) {
 
     cardDeleteButton.addEventListener('click', event => removal(card));
 
-    return cardList.append(card);
+    return card;
 }
 
 function removeItem(item) {
     item.remove();
 }
 
-initialCards.forEach(item => addCard(item, removeItem));
+initialCards.forEach(item => cardList.append(addCard(item, removeItem)));
