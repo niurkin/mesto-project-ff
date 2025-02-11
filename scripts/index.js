@@ -10,10 +10,11 @@ function addCard(source, removal) {
     
     cardTitle.textContent = source.name;
     cardImage.src = source.link;
-
-    cardList.append(card);
+    cardImage.alt = source.name;
 
     cardDeleteButton.addEventListener('click', event => removal(card));
+
+    return cardList.append(card);
 }
 
 function removeItem(item) {
