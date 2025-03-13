@@ -63,10 +63,10 @@ function hideModal(targetModal) {
 }
 
 function clearInputs(modal) {
-    const inputs = modal.querySelectorAll('.popup__input');
+    const forms = modal.querySelectorAll('.popup__form');
 
-    if (inputs.length > 0) {
-        inputs.forEach(input => input.value = '')
+    if (forms.length > 0) {
+        forms.forEach(form => form.reset());
     }
 }
 
