@@ -9,29 +9,22 @@ function showModal(modal, invisibleState, visibleState, timer) {
   modal.dispatchEvent(modalOpenedEvent);
 }
 
-function hideModal(modal, visibleState, invisibleState, maxDuration) {
+function hideModal(modal, visibleState, invisibleState, timer) {
     
     modal.classList.remove(visibleState);
-    setTimeout(() => modal.classList.remove(invisibleState), maxDuration(modal));
+    setTimeout(() => modal.classList.remove(invisibleState), timer());
 
     modal.dispatchEvent(modalClosedEvent);
 }
 
-function hideModalOnKey(key, visibleState, invisibleState, maxDuration) {
+function performModalActionOnKey(key, activeModalClass, action, ...rest) {
   return function(evt) {
-    const activeModal = document.querySelector(`.${visibleState}`);
-    if (evt.key === key) {
-      hideModal(activeModal, visibleState, invisibleState, maxDuration);
+    const activeModal = document.querySelector(`.${activeModalClass}`);
+    if (evt.key === key && activeModal != null) {
+      action(activeModal, ...rest);
     }
   }
 }
 
-function getMaxTransitionDuration(element) {
-    const Durations = window.getComputedStyle(element).transitionDuration.split(', ');
-    const durationNumbers = Durations.map(item => parseFloat(item) * 1000);
-    const maxDuration = Math.max(...durationNumbers);
 
-    return maxDuration;
-}
-
-export { showModal, hideModal, hideModalOnKey, getMaxTransitionDuration }
+export { showModal, hideModal, performModalActionOnKey }

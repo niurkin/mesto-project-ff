@@ -1,28 +1,30 @@
-function createCard(source, deleteAction, likeAction) {
+function createCard(source, deleteAction, likeAction, imageAction, config) {
     
-    const cardTemplate = document.querySelector('#card-template').content;
-    const card = cardTemplate.querySelector('.card').cloneNode(true);
-    const cardTitle = card.querySelector('.card__title');
-    const cardImage = card.querySelector('.card__image');
-    const cardDeleteButton = card.querySelector('.card__delete-button');
-    const cardLikeButton = card.querySelector('.card__like-button');
+    const cardTemplate = document.querySelector(config.templateSelector).content;
+    const card = cardTemplate.querySelector(`.${config.cardClass}`).cloneNode(true);
+    const cardTitle = card.querySelector(`.${config.titleClass}`);
+    const cardImage = card.querySelector(`.${config.imageClass}`);
+    const cardDeleteButton = card.querySelector(`.${config.deleteButtonClass}`);
+    const cardLikeButton = card.querySelector(`.${config.likeButtonClass}`);
     
     cardTitle.textContent = source.name;
     cardImage.src = source.link;
     cardImage.alt = source.name;
 
     cardDeleteButton.addEventListener('click', () => deleteAction(card));
-    cardLikeButton.addEventListener('click', evt => likeAction(evt.target));
+    cardLikeButton.addEventListener('click', evt => likeAction(evt.target, config.likeClass));
+    cardImage.addEventListener('click', evt => imageAction(evt.target));
+
 
     return card;
 }
 
-function deleteCard(target) {
-    target.remove();
+function deleteElement(element) {
+    element.remove();
 }
 
-function likeCard(button) {
-    button.classList.toggle('card__like-button_is-active');
+function toggleElementClass(element, elementClass) {
+    element.classList.toggle(elementClass);
 }
 
-export { createCard, deleteCard, likeCard }
+export { createCard, deleteElement, toggleElementClass }
