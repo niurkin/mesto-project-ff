@@ -19,6 +19,11 @@ const cardConfig = {
     likeClass: 'card__like-button_is-active'
 }
 
+const modalConfig = {
+    visibleState: 'popup_is-opened',
+    invisibleState: 'popup_is-animated'
+}
+
 const modals = document.querySelectorAll('.popup');
 
 const modalEditProfile = document.querySelector('.popup_type_edit');
@@ -50,11 +55,11 @@ function createCard(card) {
 }
 
 function showModal(targetModal) {
-    return showModalTemplate(targetModal, 'popup_is-animated', 'popup_is-opened', 1);
+    return showModalTemplate(targetModal, 1, modalConfig);
 }
 
 function hideModal(targetModal) {
-    return hideModalTemplate(targetModal, 'popup_is-opened', 'popup_is-animated', () => getMaxTransitionDuration(targetModal));
+    return hideModalTemplate(targetModal, () => getMaxTransitionDuration(targetModal), modalConfig);
 }
 
 function clearInputs(modal) {

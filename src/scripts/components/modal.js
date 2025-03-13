@@ -2,17 +2,17 @@ const modalOpenedEvent = new CustomEvent('opened');
 const modalClosedEvent = new CustomEvent('closed');
 
 
-function showModal(modal, invisibleState, visibleState, timer) {
-  modal.classList.add(invisibleState);
-  setTimeout(() =>  modal.classList.add(visibleState), timer);
+function showModal(modal, timer, config) {
+  modal.classList.add(config.invisibleState);
+  setTimeout(() =>  modal.classList.add(config.visibleState), timer);
 
   modal.dispatchEvent(modalOpenedEvent);
 }
 
-function hideModal(modal, visibleState, invisibleState, timer) {
+function hideModal(modal, timer, config) {
     
-    modal.classList.remove(visibleState);
-    setTimeout(() => modal.classList.remove(invisibleState), timer());
+    modal.classList.remove(config.visibleState);
+    setTimeout(() => modal.classList.remove(config.invisibleState), timer());
 
     modal.dispatchEvent(modalClosedEvent);
 }
