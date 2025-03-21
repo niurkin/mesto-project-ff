@@ -1,0 +1,11 @@
+.popup__error {
+    display: block;
+    position: absolute;
+    margin-top: -4px;
+    font-size: 12px;
+    color: rgb(255, 0, 0);
+}
+
+.popup__error:last-of-type {
+    margin-top: 6px;
+}
