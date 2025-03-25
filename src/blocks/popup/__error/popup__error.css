@@ -1,5 +1,5 @@
 .popup__error {
-    display: block;
+    display: none;
     position: absolute;
     margin-top: -4px;
     font-size: 12px;

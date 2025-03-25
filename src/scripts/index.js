@@ -2,7 +2,7 @@ import '../pages/index.css';
 import {initialCards} from './components/cards.js';
 import { createCard as createCardTemplate, deleteElement, toggleElementClass } from './components/card.js';
 import { showModal as showModalTemplate, hideModal as hideModalTemplate, performModalActionOnKey } from './components/modal.js';
-
+import { enableValidation, clearValidation } from './components/validation.js';
 
 
 const cardList = document.querySelector('.places__list');
@@ -22,6 +22,16 @@ const cardConfig = {
 const modalConfig = {
     visibleState: 'popup_is-opened',
     invisibleState: 'popup_is-animated'
+}
+
+const validationConfig = {
+    formSelector: 'popup__form',
+    inputSelector: 'popup__input',
+    submitButtonSelector: 'popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    inputErrorClass: 'popup__input_type_error',
+    errorClassPostfix: '-error',
+    errorClassVisible: 'popup__error_visible'
 }
 
 const modals = document.querySelectorAll('.popup');
@@ -62,11 +72,11 @@ function hideModal(targetModal) {
     return hideModalTemplate(targetModal, () => getMaxTransitionDuration(targetModal), modalConfig);
 }
 
-function clearInputs(modal) {
-    const forms = modal.querySelectorAll('.popup__form');
+function resetForm(modal) {
+    const form = modal.querySelector('.popup__form');
 
-    if (forms.length > 0) {
-        forms.forEach(form => form.reset());
+    if (form != null) {
+        form.reset();
     }
 }
 
@@ -81,6 +91,9 @@ function openCardlImage(source) {
 function getProfileData() {
     profileNameInput.value = profileName.textContent;
     profileJobInput.value = profileJob.textContent;
+
+    profileNameInput.dispatchEvent(new Event('input'));
+    profileJobInput.dispatchEvent(new Event('input'));
 }
 
 
@@ -88,15 +101,10 @@ function handleModalSubmit(action, ...rest) {
     return function(evt) {
         const form = evt.target;
         const modal = form.closest('.popup');
-        const inputs = form.querySelectorAll('.popup__input');
-        const isValid = Array.from(inputs).every(input => input.value.length > 0);
-        
-        evt.preventDefault();
-        if (isValid) {
-            action(...rest);
-            hideModal(modal);
+    
+        action(...rest);
+        hideModal(modal);
         }
-    }
 }
 
 function updateProfileData() {
@@ -127,9 +135,19 @@ function getMaxTransitionDuration(element) {
     return maxDuration;
 }
 
+function clearModalValidation(modal) {
+    const form = modal.querySelector('.popup__form');
+    
+    if (form != null) {
+        return clearValidation(form, validationConfig);
+    }
+}
+
 
 
 initialCards.forEach(item => cardList.append(createCard(item)));
+
+enableValidation(validationConfig);
 
 buttonEditProfile.addEventListener('click', () => showModal(modalEditProfile));
 buttonAddCard.addEventListener('click', () => showModal(modalAddCard));
@@ -141,10 +159,13 @@ modals.forEach(item => item.addEventListener('click', evt => {
     }
 }));
 
-modals.forEach(item => item.addEventListener('opened', () => document.addEventListener('keydown', hideModalOnEsc)));
+modals.forEach(item => item.addEventListener('opened', () => {
+    document.addEventListener('keydown', hideModalOnEsc);
+}));
 modals.forEach(item => item.addEventListener('closed', evt => {
     document.removeEventListener('keydown', hideModalOnEsc);
-    clearInputs(evt.target)
+    resetForm(evt.target);
+    clearModalValidation(evt.target);
 }));
 
 modalEditProfile.addEventListener('opened', getProfileData);
