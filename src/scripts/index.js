@@ -3,11 +3,13 @@ import {initialCards} from './components/cards.js';
 import { createCard as createCardTemplate, deleteElement, toggleElementClass } from './components/card.js';
 import { showModal as showModalTemplate, hideModal as hideModalTemplate, performModalActionOnKey } from './components/modal.js';
 import { enableValidation, clearValidation } from './components/validation.js';
+import { getProfileData, uploadProfileData, uploadProfileImage } from './components/api.js';
 
 
 const cardList = document.querySelector('.places__list');
 const profileName = document.querySelector('.profile__title');
 const profileJob = document.querySelector('.profile__description');
+const profileImage = document.querySelector('.profile__image');
 
 const cardConfig = {
     templateSelector: '#card-template',
@@ -51,12 +53,17 @@ const modalOpenImage = document.querySelector('.popup_type_image');
 const modalImage = modalOpenImage.querySelector('.popup__image');
 const modalImageCaption = modalOpenImage.querySelector('.popup__caption');
 
+const modalProfileImage = document.querySelector('.popup_type_profile-image');
+const modalProfileImageForm = modalProfileImage.querySelector('.popup__form');
+const ProfileImageInput = modalProfileImageForm.querySelector('.popup__input_type_url');
+
 const buttonEditProfile = document.querySelector('.profile__edit-button');
 const buttonAddCard = document.querySelector('.profile__add-button');
 
 const hideModalOnEsc = performModalActionOnKey('Escape', 'popup_is-opened', hideModal);
-const handleProfileSubmit = handleModalSubmit(updateProfileData);
+const handleProfileSubmit = handleModalSubmit(() => changeProfileData (profileNameInput.value, profileJobInput.value));
 const handleNewCardSubmit = handleModalSubmit(addCardfromForm);
+const handleProfileImageSubmit = handleModalSubmit(() => changeProfileImage(ProfileImageInput.value));
 
 
 
@@ -88,28 +95,59 @@ function openCardlImage(source) {
     showModal(modalOpenImage);
 }
 
-function getProfileData() {
-    profileNameInput.value = profileName.textContent;
-    profileJobInput.value = profileJob.textContent;
 
-    profileNameInput.dispatchEvent(new Event('input'));
-    profileJobInput.dispatchEvent(new Event('input'));
-}
-
-
-function handleModalSubmit(action, ...rest) {
+function handleModalSubmit(action) {
     return function(evt) {
         const form = evt.target;
         const modal = form.closest('.popup');
     
-        action(...rest);
+        action();
         hideModal(modal);
         }
 }
 
-function updateProfileData() {
-    profileName.textContent = profileNameInput.value;
-    profileJob.textContent = profileJobInput.value;
+function clearModalValidation(modal) {
+    const form = modal.querySelector('.popup__form');
+    
+    if (form != null) {
+        return clearValidation(form, validationConfig);
+    }
+}
+
+function insertInputValue(input, value) {
+    const inputEvent = new Event('input');
+    input.value = value;
+    input.dispatchEvent(inputEvent);
+}
+
+function updateProfileElements(newName, newJob) {
+    profileName.textContent = newName;
+    profileJob.textContent = newJob;
+}
+
+function changeProfileData(name, job) {
+    const ProfileData = {};
+    ProfileData.name = name;
+    ProfileData.about = job;
+
+    uploadProfileData(ProfileData)
+    .then(res => updateProfileElements(res.name, res.about))
+    .catch(err => console.log(err));
+}
+
+function getProfileImageLink() {
+    const link = profileImage.style.backgroundImage.slice(5, -2);
+    return link;
+}
+
+function updateProfileImageElement(newLink) {
+    profileImage.style.backgroundImage = `url(${newLink})`;
+}
+
+function changeProfileImage(link) {
+    uploadProfileImage(link)
+    .then(res => updateProfileImageElement(res.avatar))
+    .catch(err => console.log(err));
 }
 
 function addCardfromForm() {
@@ -135,15 +173,14 @@ function getMaxTransitionDuration(element) {
     return maxDuration;
 }
 
-function clearModalValidation(modal) {
-    const form = modal.querySelector('.popup__form');
-    
-    if (form != null) {
-        return clearValidation(form, validationConfig);
-    }
-}
 
 
+getProfileData()
+.then(res => {
+    updateProfileElements(res.name, res.about);
+    updateProfileImageElement(res.avatar);
+})
+.catch(err => console.log(err));
 
 initialCards.forEach(item => cardList.append(createCard(item)));
 
@@ -151,6 +188,7 @@ enableValidation(validationConfig);
 
 buttonEditProfile.addEventListener('click', () => showModal(modalEditProfile));
 buttonAddCard.addEventListener('click', () => showModal(modalAddCard));
+profileImage.addEventListener('click', () => showModal(modalProfileImage));
 
 
 modals.forEach(item => item.addEventListener('click', evt => {
@@ -168,8 +206,15 @@ modals.forEach(item => item.addEventListener('closed', evt => {
     clearModalValidation(evt.target);
 }));
 
-modalEditProfile.addEventListener('opened', getProfileData);
+modalEditProfile.addEventListener('opened', () => {
+    insertInputValue(profileNameInput, profileName.textContent);
+    insertInputValue(profileJobInput, profileJob.textContent);
+});
+
+modalProfileImage.addEventListener('opened', () => insertInputValue(ProfileImageInput, getProfileImageLink()));
 
 modalEditProfileForm.addEventListener('submit', handleProfileSubmit);
 
 modalAddCardForm.addEventListener('submit', handleNewCardSubmit);
+
+modalProfileImageForm.addEventListener('submit', handleProfileImageSubmit);
