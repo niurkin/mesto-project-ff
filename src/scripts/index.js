@@ -1,15 +1,45 @@
 import '../pages/index.css';
-import {initialCards} from './components/cards.js';
-import { createCard as createCardTemplate, deleteElement, toggleElementClass } from './components/card.js';
+import { createCard as createCardTemplate, removeCard, likeCard } from './components/card.js';
 import { showModal as showModalTemplate, hideModal as hideModalTemplate, performModalActionOnKey } from './components/modal.js';
-import { enableValidation, clearValidation } from './components/validation.js';
-import { getProfileData, uploadProfileData, uploadProfileImage } from './components/api.js';
+import { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton } from './components/validation.js';
+import { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard } from './components/api.js';
 
+const currentProfile = {};
 
 const cardList = document.querySelector('.places__list');
+
 const profileName = document.querySelector('.profile__title');
 const profileJob = document.querySelector('.profile__description');
 const profileImage = document.querySelector('.profile__image');
+
+const modals = document.querySelectorAll('.popup');
+
+const modalEditProfile = document.querySelector('.popup_type_edit');
+const modalEditProfileForm = modalEditProfile.querySelector('.popup__form');
+const profileNameInput = modalEditProfileForm.querySelector('.popup__input_type_name');
+const profileJobInput = modalEditProfileForm.querySelector('.popup__input_type_description');
+
+const modalAddCard = document.querySelector('.popup_type_new-card');
+const modalAddCardForm = modalAddCard.querySelector('.popup__form');
+const newCardNameInput = modalAddCardForm.querySelector('.popup__input_type_card-name');
+const newCardLinkInput = modalAddCardForm.querySelector('.popup__input_type_url');
+
+const modalOpenImage = document.querySelector('.popup_type_image');
+const modalImage = modalOpenImage.querySelector('.popup__image');
+const modalImageCaption = modalOpenImage.querySelector('.popup__caption');
+
+const modalProfileImage = document.querySelector('.popup_type_profile-image');
+const modalProfileImageForm = modalProfileImage.querySelector('.popup__form');
+const ProfileImageInput = modalProfileImageForm.querySelector('.popup__input_type_url');
+
+const modalConfirm = document.querySelector('.popup_type_confirm');
+const modalConfirmMessage = modalConfirm.querySelector('.popup__title');
+const modalConfirmForm = modalConfirm.querySelector('.popup__form');
+const modalConfirmButton = modalConfirmForm.querySelector('.popup__button');
+let submitConfirmation = null;
+
+const buttonEditProfile = document.querySelector('.profile__edit-button');
+const buttonAddCard = document.querySelector('.profile__add-button');
 
 const cardConfig = {
     templateSelector: '#card-template',
@@ -18,7 +48,11 @@ const cardConfig = {
     imageClass: 'card__image',
     deleteButtonClass: 'card__delete-button',
     likeButtonClass: 'card__like-button',
-    likeClass: 'card__like-button_is-active'
+    likeClass: 'card__like-button_is-active',
+    likeCounterClass: 'card__like-button_counter',
+    removeMessage: 'Удалить пост?',
+    profile: currentProfile,
+    confirmAction: requestConfirmation
 }
 
 const modalConfig = {
@@ -36,39 +70,26 @@ const validationConfig = {
     errorClassVisible: 'popup__error_visible'
 }
 
-const modals = document.querySelectorAll('.popup');
-
-const modalEditProfile = document.querySelector('.popup_type_edit');
-const modalEditProfileForm = modalEditProfile.querySelector('.popup__form');
-const profileNameInput = modalEditProfileForm.querySelector('.popup__input_type_name');
-const profileJobInput = modalEditProfileForm.querySelector('.popup__input_type_description');
-
-const modalAddCard = document.querySelector('.popup_type_new-card');
-const modalAddCardForm = modalAddCard.querySelector('.popup__form');
-const newCardNameInput = modalAddCardForm.querySelector('.popup__input_type_card-name');
-const newCardLinkInput = modalAddCardForm.querySelector('.popup__input_type_url');
-
-
-const modalOpenImage = document.querySelector('.popup_type_image');
-const modalImage = modalOpenImage.querySelector('.popup__image');
-const modalImageCaption = modalOpenImage.querySelector('.popup__caption');
-
-const modalProfileImage = document.querySelector('.popup_type_profile-image');
-const modalProfileImageForm = modalProfileImage.querySelector('.popup__form');
-const ProfileImageInput = modalProfileImageForm.querySelector('.popup__input_type_url');
-
-const buttonEditProfile = document.querySelector('.profile__edit-button');
-const buttonAddCard = document.querySelector('.profile__add-button');
+const submitTypes = new Map([
+    [changeProfileData, 'save'],
+    [changeProfileImage, 'save'],
+    [addCard, 'save'],
+    [removeCard, 'delete']
+]);
 
 const hideModalOnEsc = performModalActionOnKey('Escape', 'popup_is-opened', hideModal);
-const handleProfileSubmit = handleModalSubmit(() => changeProfileData (profileNameInput.value, profileJobInput.value));
-const handleNewCardSubmit = handleModalSubmit(addCardfromForm);
-const handleProfileImageSubmit = handleModalSubmit(() => changeProfileImage(ProfileImageInput.value));
+const submitProfileData = evt => handleFormSubmit(evt, changeProfileData, profileNameInput.value, profileJobInput.value);
+const submitProfileImage = evt => handleFormSubmit(evt, changeProfileImage, ProfileImageInput.value);
+const submitNewCard = evt => handleFormSubmit(evt, addCard, newCardNameInput.value, newCardLinkInput.value);
 
 
+
+function updateCurrentProfile(source) {
+    Object.assign(currentProfile, source);
+}
 
 function createCard(card) {
-    return createCardTemplate(card, deleteElement, toggleElementClass, openCardlImage, cardConfig);
+    return createCardTemplate(card, removeCard, likeCard, openCardlImage, cardConfig);
 }
 
 function showModal(targetModal) {
@@ -96,16 +117,6 @@ function openCardlImage(source) {
 }
 
 
-function handleModalSubmit(action) {
-    return function(evt) {
-        const form = evt.target;
-        const modal = form.closest('.popup');
-    
-        action();
-        hideModal(modal);
-        }
-}
-
 function clearModalValidation(modal) {
     const form = modal.querySelector('.popup__form');
     
@@ -115,14 +126,18 @@ function clearModalValidation(modal) {
 }
 
 function insertInputValue(input, value) {
-    const inputEvent = new Event('input');
-    input.value = value;
-    input.dispatchEvent(inputEvent);
+    if (value != undefined) {
+        input.value = value;
+    }
 }
 
-function updateProfileElements(newName, newJob) {
-    profileName.textContent = newName;
-    profileJob.textContent = newJob;
+function updateProfileElements() {
+    profileName.textContent = currentProfile.name;
+    profileJob.textContent = currentProfile.about;
+}
+
+function updateProfileImageElement() {
+    profileImage.style.backgroundImage = `url(${currentProfile.avatar})`;
 }
 
 function changeProfileData(name, job) {
@@ -130,32 +145,68 @@ function changeProfileData(name, job) {
     ProfileData.name = name;
     ProfileData.about = job;
 
-    uploadProfileData(ProfileData)
-    .then(res => updateProfileElements(res.name, res.about))
-    .catch(err => console.log(err));
+    return uploadProfileData(ProfileData)
+    .then(res => {
+        updateCurrentProfile(res);
+        updateProfileElements();
+    });
 }
-
-function getProfileImageLink() {
-    const link = profileImage.style.backgroundImage.slice(5, -2);
-    return link;
-}
-
-function updateProfileImageElement(newLink) {
-    profileImage.style.backgroundImage = `url(${newLink})`;
-}
+    
 
 function changeProfileImage(link) {
-    uploadProfileImage(link)
-    .then(res => updateProfileImageElement(res.avatar))
-    .catch(err => console.log(err));
+    return uploadProfileImage(link)
+    .then(res => {
+        updateCurrentProfile(res);
+        updateProfileImageElement();
+    });
 }
 
-function addCardfromForm() {
+function addCard(name, link) {
     const newCard = {};
-    newCard.name = newCardNameInput.value;
-    newCard.link = newCardLinkInput.value;
+    newCard.name = name;
+    newCard.link = link;
 
-    cardList.prepend(createCard(newCard));
+    return uploadCard(newCard)
+    .then(res => cardList.prepend(createCard(res)));
+}
+
+function handleFormSubmit(evt, action, ...rest) {
+    const form = evt.target;
+    const modal = form.closest('.popup');
+    const button  = form.querySelector('.popup__button');
+    const initialButtonText = button.textContent;
+    const submitType = submitTypes.get(action);
+
+    switch (submitType) {
+        case 'save':
+            button.textContent = 'Сохранение...'
+            break
+        case 'delete':
+            button.textContent = 'Удаление...';
+            break
+        default:
+            button.textContent = 'Подождите...';
+            break
+    };
+
+
+    action(...rest)
+        .then(() => hideModal(modal))
+        .catch(err => console.log(err))
+        .finally(() => button.textContent = initialButtonText);
+}
+
+function requestConfirmation(action, message, ...rest) {
+    submitConfirmation = evt => handleFormSubmit(evt, action, ...rest);
+    modalConfirmMessage.textContent = message;
+    modalConfirmForm.addEventListener('submit', submitConfirmation);
+    showModal(modalConfirm);
+}
+
+function clearModalConfirm() {
+    modalConfirmForm.removeEventListener('submit', submitConfirmation);
+    submitConfirmation = null;
+    modalConfirmMessage.textContent = '';
 }
 
 function getMaxTransitionDuration(element) {
@@ -175,14 +226,14 @@ function getMaxTransitionDuration(element) {
 
 
 
-getProfileData()
-.then(res => {
-    updateProfileElements(res.name, res.about);
-    updateProfileImageElement(res.avatar);
+Promise.all([getProfileData(), getInitialCards()])
+.then(([profile, cards]) => {
+    updateCurrentProfile(profile);
+    updateProfileElements();
+    updateProfileImageElement();
+    cards.forEach(item => cardList.append(createCard(item)))
 })
 .catch(err => console.log(err));
-
-initialCards.forEach(item => cardList.append(createCard(item)));
 
 enableValidation(validationConfig);
 
@@ -207,14 +258,18 @@ modals.forEach(item => item.addEventListener('closed', evt => {
 }));
 
 modalEditProfile.addEventListener('opened', () => {
-    insertInputValue(profileNameInput, profileName.textContent);
-    insertInputValue(profileJobInput, profileJob.textContent);
+    insertInputValue(profileNameInput, currentProfile.name);
+    insertInputValue(profileJobInput, currentProfile.about);
 });
 
-modalProfileImage.addEventListener('opened', () => insertInputValue(ProfileImageInput, getProfileImageLink()));
+modalProfileImage.addEventListener('opened', () => insertInputValue(ProfileImageInput, currentProfile.avatar));
 
-modalEditProfileForm.addEventListener('submit', handleProfileSubmit);
+modalConfirm.addEventListener('opened', () => activateSubmitButton(modalConfirmButton, validationConfig));
 
-modalAddCardForm.addEventListener('submit', handleNewCardSubmit);
+modalConfirm.addEventListener('closed', () => clearModalConfirm());
 
-modalProfileImageForm.addEventListener('submit', handleProfileImageSubmit);
+modalEditProfileForm.addEventListener('submit', submitProfileData);
+
+modalProfileImageForm.addEventListener('submit', submitProfileImage);
+
+modalAddCardForm.addEventListener('submit', submitNewCard);

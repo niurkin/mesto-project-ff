@@ -52,4 +52,73 @@ const config = {
       });
   }
 
-  export { getProfileData, uploadProfileData, uploadProfileImage }
+  const getInitialCards = () => {
+    return fetch(`${config.baseUrl}/cards`, {
+        method: 'GET',
+        headers: config.headers
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          return Promise.reject(`Ошибка: ${res.status}`);
+        });
+  }
+
+  const uploadCard = (newData) => {
+    return fetch(`${config.baseUrl}/cards`, {
+        method: 'POST',
+        headers: config.headers,
+        body: JSON.stringify({
+          name: newData.name,
+          link: newData.link
+        })
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(`Ошибка: ${res.status}`);
+      });
+  }
+
+  const deleteCardFromServer = (cardId) => {
+    return fetch(`${config.baseUrl}/cards/${cardId}`, {
+        method: 'DELETE',
+        headers: config.headers
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          return Promise.reject(`Ошибка: ${res.status}`);
+        });
+  }
+
+  const registerCardLike = (cardID) => {
+    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
+        method: 'PUT',
+        headers: config.headers
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          return Promise.reject(`Ошибка: ${res.status}`);
+        });
+  }
+
+  const removeCardLike = (cardID) => {
+    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
+        method: 'DELETE',
+        headers: config.headers
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          return Promise.reject(`Ошибка: ${res.status}`);
+        });
+  }
+
+  export { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard, deleteCardFromServer, registerCardLike, removeCardLike }

@@ -52,14 +52,23 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
     return inputList.some(inputElement => !inputElement.validity.valid);
   }
 
-  function toggleButtonState(inputList, buttonElement, config) {
-    if (hasInvalidInput(inputList)) {
-    buttonElement.classList.add(config.inactiveButtonClass);
-    buttonElement.disabled = true;
-  } else {
+  function activateSubmitButton(buttonElement, config) {
     buttonElement.classList.remove(config.inactiveButtonClass);
     buttonElement.disabled = false;
-  } 
+  }
+
+  function deactivateSubmitButton(buttonElement, config) {
+    buttonElement.classList.add(config.inactiveButtonClass);
+    buttonElement.disabled = false;
+  }
+
+  function toggleButtonState(inputList, buttonElement, config) {
+    if (hasInvalidInput(inputList)) {
+        deactivateSubmitButton(buttonElement, config);
+    }
+    else {
+        activateSubmitButton(buttonElement, config);
+    } 
   }
 
   function clearValidation(formElement, config) {
@@ -67,8 +76,7 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
     const buttonElement = formElement.querySelector(`.${config.submitButtonSelector}`);
 
     inputList.forEach(inputElement => hideInputError(formElement, inputElement, config));
-    buttonElement.classList.add(config.inactiveButtonClass);
-    buttonElement.disabled = true;
+    deactivateSubmitButton(buttonElement, config);
   }
 
-  export { enableValidation, clearValidation }
+  export { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton }
