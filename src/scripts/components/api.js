@@ -113,12 +113,12 @@ const config = {
         method: 'DELETE',
         headers: config.headers
       })
-        .then(res => {
-          if (res.ok) {
-            return res.json();
-          }
-          return Promise.reject(`Ошибка: ${res.status}`);
-        });
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(`Ошибка: ${res.status}`);
+      });
   }
 
   export { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard, deleteCardFromServer, registerCardLike, removeCardLike }

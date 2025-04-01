@@ -1,7 +1,7 @@
 import '../pages/index.css';
 import { createCard as createCardTemplate, removeCard, likeCard } from './components/card.js';
 import { showModal as showModalTemplate, hideModal as hideModalTemplate, performModalActionOnKey } from './components/modal.js';
-import { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton } from './components/validation.js';
+import { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton, validateImageLinks } from './components/validation.js';
 import { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard } from './components/api.js';
 
 const currentProfile = {};
@@ -63,6 +63,7 @@ const modalConfig = {
 const validationConfig = {
     formSelector: 'popup__form',
     inputSelector: 'popup__input',
+    imageInputSelector: 'popup__input_image-url',
     submitButtonSelector: 'popup__button',
     inactiveButtonClass: 'popup__button_disabled',
     inputErrorClass: 'popup__input_type_error',
@@ -190,10 +191,11 @@ function handleFormSubmit(evt, action, ...rest) {
     };
 
 
-    action(...rest)
-        .then(() => hideModal(modal))
-        .catch(err => console.log(err))
-        .finally(() => button.textContent = initialButtonText);
+    validateImageLinks(form, validationConfig)
+    .then (() => action(...rest))
+    .then(() => hideModal(modal))
+    .catch(err => console.log(err))
+    .finally(() => button.textContent = initialButtonText);
 }
 
 function requestConfirmation(action, message, ...rest) {
