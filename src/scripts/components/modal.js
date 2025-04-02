@@ -2,19 +2,18 @@ const modalOpenedEvent = new CustomEvent('opened');
 const modalClosedEvent = new CustomEvent('closed');
 
 
-function showModal(modal, timer, config) {
+function showModal(modal, config) {
   modal.classList.add(config.invisibleState);
-  setTimeout(() =>  modal.classList.add(config.visibleState), timer);
+  requestAnimationFrame(() => modal.classList.add(config.visibleState));
 
   modal.dispatchEvent(modalOpenedEvent);
 }
 
-function hideModal(modal, timer, config) {
-    
-    modal.classList.remove(config.visibleState);
-    setTimeout(() => modal.classList.remove(config.invisibleState), timer());
-
-    modal.dispatchEvent(modalClosedEvent);
+function hideModal(modal, timerFunction, config) {
+  modal.classList.remove(config.visibleState);
+  setTimeout(() => modal.classList.remove(config.invisibleState), timerFunction());
+  
+  modal.dispatchEvent(modalClosedEvent);
 }
 
 function performModalActionOnKey(key, activeModalClass, action, ...rest) {
@@ -25,6 +24,5 @@ function performModalActionOnKey(key, activeModalClass, action, ...rest) {
     }
   }
 }
-
 
 export { showModal, hideModal, performModalActionOnKey }

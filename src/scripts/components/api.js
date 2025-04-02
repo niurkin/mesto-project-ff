@@ -4,7 +4,7 @@ const config = {
       authorization: 'd45e7742-926e-4eb9-83ed-297f16544725',
       'Content-Type': 'application/json'
     }
-  }
+  };
 
   const getProfileData = () => {
     return fetch(`${config.baseUrl}/users/me`, {
@@ -17,7 +17,7 @@ const config = {
           }
           return Promise.reject(`Не удалось получить данные пользователя. Ошибка: ${res.status}`);
         });
-  }
+  };
 
   const uploadProfileData = (newData) => {
     return fetch(`${config.baseUrl}/users/me`, {
@@ -34,7 +34,7 @@ const config = {
         }
         return Promise.reject(`Не удалось обновить данные пользователя. Ошибка: ${res.status}`);
       });
-  }
+  };
 
   const uploadProfileImage = (newLink) => {
     return fetch(`${config.baseUrl}/users/me/avatar`, {
@@ -50,7 +50,7 @@ const config = {
         }
         return Promise.reject(`Не удалось обновить аватар. Ошибка: ${res.status}`);
       });
-  }
+  };
 
   const getInitialCards = () => {
     return fetch(`${config.baseUrl}/cards`, {
@@ -63,7 +63,7 @@ const config = {
           }
           return Promise.reject(`Не удалось загрузить посты. Ошибка: ${res.status}`);
         });
-  }
+  };
 
   const uploadCard = (newData) => {
     return fetch(`${config.baseUrl}/cards`, {
@@ -80,7 +80,7 @@ const config = {
         }
         return Promise.reject(`Не удалось добавить пост. Ошибка: ${res.status}`);
       });
-  }
+  };
 
   const deleteCardFromServer = (cardId) => {
     return fetch(`${config.baseUrl}/cards/${cardId}`, {
@@ -93,7 +93,7 @@ const config = {
           }
           return Promise.reject(`Не удалось удалить пост. Ошибка: ${res.status}`);
         });
-  }
+  };
 
   const registerCardLike = (cardID) => {
     return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
@@ -106,7 +106,7 @@ const config = {
           }
           return Promise.reject(`Не удалось поставить лайк. Ошибка: ${res.status}`);
         });
-  }
+  };
 
   const removeCardLike = (cardID) => {
     return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
@@ -119,6 +119,6 @@ const config = {
         }
         return Promise.reject(`Не удалось удалить лайк. Ошибка: ${res.status}`);
       });
-  }
+  };
 
   export { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard, deleteCardFromServer, registerCardLike, removeCardLike }

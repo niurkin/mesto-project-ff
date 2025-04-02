@@ -114,38 +114,45 @@
           <p class="popup__caption"></p>
         </div>
       </div>
-    </div>
-    <div class="popup popup_type_profile-image">
-      <div class="popup__content">
-        <button type="button" class="popup__close"></button>
-        <h3 class="popup__title">Обновить аватар</h3>
-        <form class="popup__form" name="profile-image" novalidate>
-          <input
-            type="url"
-            name="link"
-            id="profile-image-link"
-            class="popup__input popup__input_type_url popup__input_image-url"
-            placeholder="Ссылка на картинку"
-            required
-          />
-          <span class="popup__error profile-image-link-error"></span>
-          <button type="submit" class="button popup__button popup__button_disabled" disabled>
-            Сохранить
-          </button>
-          <span class="popup__error popup__submit-message"></span>
-        </form>
+      <div class="popup popup_type_profile-image">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="profile-image" novalidate>
+            <input
+              type="url"
+              name="link"
+              id="profile-image-link"
+              class="popup__input popup__input_type_url popup__input_image-url"
+              placeholder="Ссылка на картинку"
+              required
+            />
+            <span class="popup__error profile-image-link-error"></span>
+            <button type="submit" class="button popup__button popup__button_disabled" disabled>
+              Сохранить
+            </button>
+            <span class="popup__error popup__submit-message"></span>
+          </form>
+        </div>
       </div>
-    </div>
-    <div class="popup popup_type_confirm">
-      <div class="popup__content">
-        <button type="button" class="popup__close"></button>
-        <h3 class="popup__title"></h3>
-        <form class="popup__form" name="confirm" novalidate>
-          <button type="submit" class="button popup__button">
-            Да
-          </button>
-          <span class="popup__error popup__submit-message"></span>
-        </form>
+      <div class="popup popup_type_confirm">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title"></h3>
+          <form class="popup__form" name="confirm" novalidate>
+            <button type="submit" class="button popup__button">
+              Да
+            </button>
+            <span class="popup__error popup__submit-message"></span>
+          </form>
+        </div>
+      </div>
+      <div class="popup popup_type_error">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Возникла проблема</h3>
+          <p class="popup__type_error_text"></p>
+        </div>
       </div>
     </div>
     <template id="card-template">

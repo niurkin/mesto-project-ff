@@ -60,7 +60,7 @@ function likeCard(likeButton, card, counter, config) {
             likeButton.classList.add(config.likeClass);
             counter.textContent = res.likes.length;
         })
-        .catch(err => console.log(err));
+        .catch(err => config.handleError(err));
     }
     else {
         removeCardLike(card._id)
@@ -69,7 +69,7 @@ function likeCard(likeButton, card, counter, config) {
             likeButton.classList.remove(config.likeClass);
             counter.textContent = res.likes.length;
         })
-        .catch(err => console.log(err));
+        .catch(err => config.handleError(err));
     }
 }
 

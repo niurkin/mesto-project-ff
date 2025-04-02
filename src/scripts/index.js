@@ -38,6 +38,9 @@ const modalConfirmForm = modalConfirm.querySelector('.popup__form');
 const modalConfirmButton = modalConfirmForm.querySelector('.popup__button');
 let submitConfirmation = null;
 
+const modalError = document.querySelector('.popup_type_error');
+const modalErrorText = modalError.querySelector('.popup__type_error_text');
+
 const buttonEditProfile = document.querySelector('.profile__edit-button');
 const buttonAddCard = document.querySelector('.profile__add-button');
 
@@ -52,7 +55,8 @@ const cardConfig = {
     likeCounterClass: 'card__like-button_counter',
     removeMessage: 'Удалить пост?',
     profile: currentProfile,
-    confirmAction: requestConfirmation
+    confirmAction: requestConfirmation,
+    handleError: showModalError
 }
 
 const modalConfig = {
@@ -83,6 +87,14 @@ const submitProfileData = evt => handleFormSubmit(evt, changeProfileData, profil
 const submitProfileImage = evt => handleFormSubmit(evt, changeProfileImage, ProfileImageInput.value);
 const submitNewCard = evt => handleFormSubmit(evt, addCard, newCardNameInput.value, newCardLinkInput.value);
 
+const clearModalError = () => modalErrorText.textContent = '';
+
+const clearModalConfirm = () => {
+    modalConfirmForm.removeEventListener('submit', submitConfirmation);
+    submitConfirmation = null;
+    modalConfirmMessage.textContent = '';
+}
+
 const isValidImage = (link) => {
     const notImageMessage = 'Требуется ссылка на изображение';
     const requestErrorMessage = 'Не удалось проверить ссылку. Возможно, это не изображение';
@@ -101,24 +113,33 @@ const isValidImage = (link) => {
             return Promise.reject(requestErrorMessage);
         }
     });
-}
+};
 
 
-
-function updateCurrentProfile(source) {
-    Object.assign(currentProfile, source);
-}
 
 function createCard(card) {
     return createCardTemplate(card, removeCard, likeCard, openCardlImage, cardConfig);
 }
 
 function showModal(targetModal) {
-    return showModalTemplate(targetModal, 1, modalConfig);
+    return showModalTemplate(targetModal, modalConfig);
 }
 
 function hideModal(targetModal) {
     return hideModalTemplate(targetModal, () => getMaxTransitionDuration(targetModal), modalConfig);
+}
+
+function updateCurrentProfile(source) {
+    Object.assign(currentProfile, source);
+}
+
+function updateProfileElements() {
+    profileName.textContent = currentProfile.name;
+    profileJob.textContent = currentProfile.about;
+}
+
+function updateProfileImageElement() {
+    profileImage.style.backgroundImage = `url(${currentProfile.avatar})`;
 }
 
 function resetForm(modal) {
@@ -129,14 +150,11 @@ function resetForm(modal) {
     }
 }
 
-function openCardlImage(source) {
-    modalImage.src = source.src;
-    modalImage.alt = source.alt;
-    modalImageCaption.textContent = source.alt;
-    
-    showModal(modalOpenImage);
+function insertInputValue(input, value) {
+    if (value != undefined) {
+        input.value = value;
+    }
 }
-
 
 function clearModalValidation(modal) {
     const form = modal.querySelector('.popup__form');
@@ -147,19 +165,12 @@ function clearModalValidation(modal) {
     }
 }
 
-function insertInputValue(input, value) {
-    if (value != undefined) {
-        input.value = value;
-    }
-}
-
-function updateProfileElements() {
-    profileName.textContent = currentProfile.name;
-    profileJob.textContent = currentProfile.about;
-}
-
-function updateProfileImageElement() {
-    profileImage.style.backgroundImage = `url(${currentProfile.avatar})`;
+function openCardlImage(source) {
+    modalImage.src = source.src;
+    modalImage.alt = source.alt;
+    modalImageCaption.textContent = source.alt;
+    
+    showModal(modalOpenImage);
 }
 
 function changeProfileData(name, job) {
@@ -261,13 +272,17 @@ function requestConfirmation(action, message, ...rest) {
     submitConfirmation = evt => handleFormSubmit(evt, action, ...rest);
     modalConfirmMessage.textContent = message;
     modalConfirmForm.addEventListener('submit', submitConfirmation);
+    activateSubmitButton(modalConfirmButton, validationConfig);
     showModal(modalConfirm);
 }
 
-function clearModalConfirm() {
-    modalConfirmForm.removeEventListener('submit', submitConfirmation);
-    submitConfirmation = null;
-    modalConfirmMessage.textContent = '';
+function showModalError(message) {
+    modalErrorText.textContent = message;
+    showModal(modalError);
+}
+
+function clearModalContent(modal, action) {
+    setTimeout(() => action(), getMaxTransitionDuration(modal));
 }
 
 function getMaxTransitionDuration(element) {
@@ -294,7 +309,7 @@ Promise.all([getProfileData(), getInitialCards()])
     updateProfileImageElement();
     cards.forEach(item => cardList.append(createCard(item)))
 })
-.catch(err => console.log(err));
+.catch(err => showModalError(err));
 
 enableValidation(validationConfig);
 
@@ -328,7 +343,9 @@ modalProfileImage.addEventListener('opened', () => insertInputValue(ProfileImage
 
 modalConfirm.addEventListener('opened', () => activateSubmitButton(modalConfirmButton, validationConfig));
 
-modalConfirm.addEventListener('closed', () => clearModalConfirm());
+modalConfirm.addEventListener('closed', evt => clearModalContent(evt.target, clearModalConfirm));
+
+modalError.addEventListener('closed', evt => clearModalContent(evt.target, clearModalError));
 
 modalEditProfileForm.addEventListener('submit', submitProfileData);
 
