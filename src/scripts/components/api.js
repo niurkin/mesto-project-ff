@@ -15,7 +15,7 @@ const config = {
           if (res.ok) {
             return res.json();
           }
-          return Promise.reject(`Ошибка: ${res.status}`);
+          return Promise.reject(`Не удалось получить данные пользователя. Ошибка: ${res.status}`);
         });
   }
 
@@ -32,7 +32,7 @@ const config = {
         if (res.ok) {
           return res.json();
         }
-        return Promise.reject(`Ошибка: ${res.status}`);
+        return Promise.reject(`Не удалось обновить данные пользователя. Ошибка: ${res.status}`);
       });
   }
 
@@ -48,7 +48,7 @@ const config = {
         if (res.ok) {
           return res.json();
         }
-        return Promise.reject(`Ошибка: ${res.status}`);
+        return Promise.reject(`Не удалось обновить аватар. Ошибка: ${res.status}`);
       });
   }
 
@@ -61,7 +61,7 @@ const config = {
           if (res.ok) {
             return res.json();
           }
-          return Promise.reject(`Ошибка: ${res.status}`);
+          return Promise.reject(`Не удалось загрузить посты. Ошибка: ${res.status}`);
         });
   }
 
@@ -78,7 +78,7 @@ const config = {
         if (res.ok) {
           return res.json();
         }
-        return Promise.reject(`Ошибка: ${res.status}`);
+        return Promise.reject(`Не удалось добавить пост. Ошибка: ${res.status}`);
       });
   }
 
@@ -91,7 +91,7 @@ const config = {
           if (res.ok) {
             return res.json();
           }
-          return Promise.reject(`Ошибка: ${res.status}`);
+          return Promise.reject(`Не удалось удалить пост. Ошибка: ${res.status}`);
         });
   }
 
@@ -104,7 +104,7 @@ const config = {
           if (res.ok) {
             return res.json();
           }
-          return Promise.reject(`Ошибка: ${res.status}`);
+          return Promise.reject(`Не удалось поставить лайк. Ошибка: ${res.status}`);
         });
   }
 
@@ -117,7 +117,7 @@ const config = {
         if (res.ok) {
           return res.json();
         }
-        return Promise.reject(`Ошибка: ${res.status}`);
+        return Promise.reject(`Не удалось удалить лайк. Ошибка: ${res.status}`);
       });
   }
 

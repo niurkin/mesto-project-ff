@@ -45,8 +45,7 @@ function removeCard(cardId, config) {
 
     if (cardToRemove != null) {
         return deleteCardFromServer(cardId)
-        .then(() => cardToRemove.remove())
-        .catch(err => console.log(err));
+        .then(() => cardToRemove.remove());
     }
     else {
         return Promise.reject('Этого поста не существует');

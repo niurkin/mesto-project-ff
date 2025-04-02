@@ -6,6 +6,6 @@
     color: rgb(255, 0, 0);
 }
 
-.popup__error:last-of-type {
+.popup__error:nth-last-of-type(-n + 2) {
     margin-top: 6px;
 }

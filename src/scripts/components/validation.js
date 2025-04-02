@@ -48,53 +48,6 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
     });
   };
 
-  const isValidImage = (link) => {
-    const notImageMessage = 'Требуется ссылка на изображение';
-    const requestErrorMessage = 'Не удалось проверить ссылку. Возможно, это не изображение';
-    return fetch(link, { method: 'HEAD' })
-    .then(res => {
-        const contentType = res.headers.get('Content-Type');
-        if (res.ok && contentType && contentType.startsWith('image/')) {
-            return Promise.resolve()
-        }
-        return Promise.reject(notImageMessage)
-      })
-    .catch(err => {
-        if (err === notImageMessage) {
-            return Promise.reject(err);
-        }
-        else {
-            return Promise.reject(requestErrorMessage);
-        }
-    });
-}
-
-function validateImageLinks(formElement, config) {
-    const imageInputs = Array.from(formElement.querySelectorAll(`.${config.imageInputSelector}`));
-    const buttonElement = formElement.querySelector(`.${config.submitButtonSelector}`);
-
-    if (imageInputs.length > 0) {
-        const checkImageInputs = imageInputs.map(inputElement => {
-            return isValidImage(inputElement.value)
-            .catch(err => {
-                showInputError(formElement, inputElement, err, config);
-                return Promise.reject();
-            })
-        });
-        return Promise.allSettled(checkImageInputs)
-        .then(results => {
-            if (results.some(result => result.status === 'rejected')) {
-                deactivateSubmitButton(buttonElement, config);
-                return Promise.reject('Введены недействительные данные');
-            }
-        })
-    }
-    else {
-        return Promise.resolve();
-    }
-}
-
-
   function hasInvalidInput(inputList) {
     return inputList.some(inputElement => !inputElement.validity.valid);
   }
@@ -126,4 +79,5 @@ function validateImageLinks(formElement, config) {
     deactivateSubmitButton(buttonElement, config);
   }
 
-  export { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton, validateImageLinks }
+
+  export { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton, showInputError }

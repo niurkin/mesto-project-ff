@@ -1,7 +1,7 @@
 import '../pages/index.css';
 import { createCard as createCardTemplate, removeCard, likeCard } from './components/card.js';
 import { showModal as showModalTemplate, hideModal as hideModalTemplate, performModalActionOnKey } from './components/modal.js';
-import { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton, validateImageLinks } from './components/validation.js';
+import { enableValidation, clearValidation, activateSubmitButton, deactivateSubmitButton, showInputError } from './components/validation.js';
 import { getProfileData, uploadProfileData, uploadProfileImage, getInitialCards, uploadCard } from './components/api.js';
 
 const currentProfile = {};
@@ -83,6 +83,26 @@ const submitProfileData = evt => handleFormSubmit(evt, changeProfileData, profil
 const submitProfileImage = evt => handleFormSubmit(evt, changeProfileImage, ProfileImageInput.value);
 const submitNewCard = evt => handleFormSubmit(evt, addCard, newCardNameInput.value, newCardLinkInput.value);
 
+const isValidImage = (link) => {
+    const notImageMessage = 'Требуется ссылка на изображение';
+    const requestErrorMessage = 'Не удалось проверить ссылку. Возможно, это не изображение';
+    return fetch(link, { method: 'HEAD' })
+    .then(res => {
+        const contentType = res.headers.get('Content-Type');
+        if (!(res.ok && contentType && contentType.startsWith('image/'))) {
+            return Promise.reject(notImageMessage)
+        }
+      })
+    .catch(err => {
+        if (err === notImageMessage) {
+            return Promise.reject(err);
+        }
+        else {
+            return Promise.reject(requestErrorMessage);
+        }
+    });
+}
+
 
 
 function updateCurrentProfile(source) {
@@ -122,7 +142,8 @@ function clearModalValidation(modal) {
     const form = modal.querySelector('.popup__form');
     
     if (form != null) {
-        return clearValidation(form, validationConfig);
+        clearValidation(form, validationConfig);
+        hideSubmitMessage(form);
     }
 }
 
@@ -171,12 +192,51 @@ function addCard(name, link) {
     .then(res => cardList.prepend(createCard(res)));
 }
 
+function validateImageLinks(formElement, config) {
+    const imageInputs = Array.from(formElement.querySelectorAll(`.${config.imageInputSelector}`));
+    const buttonElement = formElement.querySelector(`.${config.submitButtonSelector}`);
+
+    if (imageInputs.length > 0) {
+        const checkImageInputs = imageInputs.map(inputElement => {
+            return isValidImage(inputElement.value)
+            .catch(err => {
+                showInputError(formElement, inputElement, err, config);
+                return Promise.reject();
+            })
+        });
+        return Promise.allSettled(checkImageInputs)
+        .then(results => {
+            if (results.some(result => result.status === 'rejected')) {
+                deactivateSubmitButton(buttonElement, config);
+                return Promise.reject('Введены недопустимые данные');
+            }
+        })
+    }
+    else {
+        return Promise.resolve();
+    }
+}
+
+function showSubmitMessage(form, message) {
+    const submitMessage = form.querySelector('.popup__submit-message');
+    submitMessage.textContent = message;
+    submitMessage.classList.add('popup__error_visible');
+}
+
+function hideSubmitMessage(form) {
+    const submitMessage = form.querySelector('.popup__submit-message');
+    submitMessage.classList.remove('popup__error_visible');
+    submitMessage.textContent = '';
+}
+
 function handleFormSubmit(evt, action, ...rest) {
     const form = evt.target;
     const modal = form.closest('.popup');
     const button  = form.querySelector('.popup__button');
     const initialButtonText = button.textContent;
     const submitType = submitTypes.get(action);
+
+    hideSubmitMessage(form);
 
     switch (submitType) {
         case 'save':
@@ -190,11 +250,10 @@ function handleFormSubmit(evt, action, ...rest) {
             break
     };
 
-
     validateImageLinks(form, validationConfig)
     .then (() => action(...rest))
     .then(() => hideModal(modal))
-    .catch(err => console.log(err))
+    .catch(err => showSubmitMessage(form, err))
     .finally(() => button.textContent = initialButtonText);
 }
 
@@ -253,6 +312,7 @@ modals.forEach(item => item.addEventListener('click', evt => {
 modals.forEach(item => item.addEventListener('opened', () => {
     document.addEventListener('keydown', hideModalOnEsc);
 }));
+
 modals.forEach(item => item.addEventListener('closed', evt => {
     document.removeEventListener('keydown', hideModalOnEsc);
     resetForm(evt.target);
@@ -275,3 +335,4 @@ modalEditProfileForm.addEventListener('submit', submitProfileData);
 modalProfileImageForm.addEventListener('submit', submitProfileImage);
 
 modalAddCardForm.addEventListener('submit', submitNewCard);
+
