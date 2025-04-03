@@ -14,8 +14,8 @@
   margin-top: 48px;
 }
 
-.popup__button:only-child {
-  margin-top: 0;
+form:not(:has(input)) .popup__button {
+  margin-top: 0px;
 }
 
 .popup__button:hover {
