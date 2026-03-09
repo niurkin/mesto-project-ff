@@ -8,11 +8,26 @@
 
 ## Технологии
 
-[![HTML5](https://skillicons.dev/icons?i=html)](https://skillicons.dev)&nbsp;&nbsp;&nbsp;HTML5
-
-[![CSS3](https://skillicons.dev/icons?i=css)](https://skillicons.dev)&nbsp;&nbsp;&nbsp;CSS3
-
-[![JavaScript](https://skillicons.dev/icons?i=javascript)](https://skillicons.dev)&nbsp;&nbsp;&nbsp;JavaScript
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://skillicons.dev/icons?i=html" width="50"/><br/>
+      <sub>HTML5</sub>
+    </td>
+    <td align="center">
+      <img src="https://skillicons.dev/icons?i=css" width="50"/><br/>
+      <sub>CSS3</sub>
+    </td>
+    <td align="center">
+      <img src="https://skillicons.dev/icons?i=javascript" width="50"/><br/>
+      <sub>JavaScript</sub>
+    </td>
+   <td align="center">
+      <img src="https://skillicons.dev/icons?i=webpack" width="50"/><br/>
+      <sub>Webpack</sub>
+    </td>
+  </tr>
+</table>
 
 ## Особенности
 
@@ -58,16 +73,16 @@
 
 Для каждого элемента приложения созданы специальные переиспользуемые компоненты, включая карточку изображения, ленту изображений и модальные окна. Логика валидации форм также прописана в отдельном компоненте.
   
-## Цели проекта
+## Задачи
 
-В рамках этого проекта я освоил и успешно применил следующие навыки:
+В рамках этого проекта я выполнил следующие задачи.
 
-- создание модульных компонентов интерфейса
+- Настроил среду разработки в Webpack.
 
-- работа со слушателями событий, в том числе использование кастомных слушателей CustomEvent
+- Реализовал механизм открытия и закрытия модальных окон с помощью обработчиков событий, создал кастомные события открытия и закрытия модального окна для более гибкого управления.
 
-- реализация модальных окон с помощью JavaScript
+- Реализовал механизм заполнения и валидации форм при изменении данных пользователя и добавлении карточки.
 
-- реализация валидации форм
+- Добавил возможность ставить лайки карточкам.
 
-- интеграция с API
+- Настроил интеграцию клиентской части приложения с API.
